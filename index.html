@@ -3,210 +3,266 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HostNet | Ultra-Premium Cloud</title>
+    <title>HostNet | Bot Hosting Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&family=JetBrains+Mono&display=swap');
-        
-        body { font-family: 'Space Grotesk', sans-serif; background: #020203; color: #f8fafc; overflow: hidden; }
-        .bg-glow { position: fixed; width: 300px; height: 300px; background: #3b82f6; filter: blur(150px); opacity: 0.15; z-index: -1; border-radius: 50%; }
-        
-        .glass-panel { background: rgba(15, 17, 26, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-        .neon-border { border-bottom: 2px solid transparent; background-image: linear-gradient(rgba(15,17,26,0), rgba(15,17,26,0)), linear-gradient(90deg, #3b82f6, #8b5cf6); background-origin: border-box; background-clip: content-box, border-box; }
-        
-        .stat-bar { transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1); }
-        .modal { transform: scale(0.9); opacity: 0; pointer-events: none; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        .modal.active { transform: scale(1); opacity: 1; pointer-events: auto; }
-        
-        #editor { font-family: 'JetBrains Mono', monospace; scrollbar-width: none; }
-        .glow-text { text-shadow: 0 0 10px rgba(59, 130, 246, 0.5); }
-        
-        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
-        .rocket-float { animation: float 3s ease-in-out infinite; }
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono&family=Outfit:wght@300;400;700&display=swap');
+        :root { --bg: #0b0e14; --card: #151921; --accent: #3b82f6; }
+        body { font-family: 'Outfit', sans-serif; background: var(--bg); color: #e2e8f0; overflow: hidden; height: 100vh; }
+        .panel-active { display: flex !important; }
+        .glass { background: var(--card); border: 1px solid rgba(255,255,255,0.05); }
+        .file-item:hover { background: rgba(59, 130, 246, 0.1); }
+        #editor { font-family: 'JetBrains Mono', monospace; }
+        .nav-btn.active { color: var(--accent); background: rgba(59, 130, 246, 0.1); border-radius: 15px; }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: #2a2f3a; border-radius: 10px; }
     </style>
 </head>
-<body class="h-screen flex flex-col p-4 md:p-8">
-    <div class="bg-glow top-0 left-0"></div>
-    <div class="bg-glow bottom-0 right-0" style="background: #8b5cf6;"></div>
+<body class="flex flex-col">
 
-    <!-- HEADER -->
-    <header class="flex justify-between items-center mb-8">
-        <div class="flex items-center gap-4">
-            <div class="w-12 h-12 glass-panel rounded-2xl flex items-center justify-center text-blue-500 text-xl border border-blue-500/20 shadow-[0_0_20px_rgba(59,130,246,0.2)]">
-                <i class="fas fa-microchip"></i>
+    <!-- TOP HEADER -->
+    <header class="h-16 glass flex items-center justify-between px-6 shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-600/20">
+                <i class="fas fa-server text-sm text-white"></i>
             </div>
-            <div>
-                <h1 class="text-2xl font-bold tracking-tighter uppercase italic">Host<span class="text-blue-500">Net</span></h1>
-                <p class="text-[10px] text-gray-500 tracking-[0.2em] font-medium">NEXT-GEN DEPLOYMENT</p>
-            </div>
+            <h1 class="font-bold tracking-tight text-lg uppercase">HostNet <span class="text-blue-500 text-xs">v5.0</span></h1>
         </div>
-        <div id="status-chip" class="px-4 py-2 glass-panel rounded-full flex items-center gap-2 border border-green-500/20">
-            <div class="w-2 h-2 bg-green-500 rounded-full shadow-[0_0_10px_#22c55e]"></div>
-            <span class="text-[10px] font-bold text-green-500 uppercase tracking-widest">Global Node Active</span>
+        <div class="flex items-center gap-4">
+            <div class="hidden md:flex items-center gap-6 mr-6 text-[11px] font-bold text-gray-500 uppercase">
+                <div class="flex flex-col"><span class="text-blue-400" id="ram-disp">142MB</span><span>Memory</span></div>
+                <div class="flex flex-col"><span class="text-purple-400" id="cpu-disp">2.1%</span><span>CPU</span></div>
+            </div>
+            <button id="mainDeploy" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-5 py-2 rounded-xl transition active:scale-95 shadow-lg shadow-blue-600/20">
+                DEPLOY
+            </button>
         </div>
     </header>
 
-    <!-- STATS -->
-    <div class="grid grid-cols-2 gap-4 mb-6">
-        <div class="glass-panel p-5 rounded-[2rem] relative overflow-hidden">
-            <div class="flex justify-between mb-2">
-                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Memory</span>
-                <span id="ram-val" class="text-xs font-bold text-blue-400">128 MB</span>
-            </div>
-            <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                <div id="ram-bar" class="stat-bar h-full bg-gradient-to-r from-blue-600 to-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.5)]" style="width: 15%"></div>
-            </div>
-        </div>
-        <div class="glass-panel p-5 rounded-[2rem] relative overflow-hidden">
-            <div class="flex justify-between mb-2">
-                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Engine Load</span>
-                <span id="cpu-val" class="text-xs font-bold text-purple-400">4%</span>
-            </div>
-            <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                <div id="cpu-bar" class="stat-bar h-full bg-gradient-to-r from-purple-600 to-purple-400 shadow-[0_0_15px_rgba(139,92,246,0.5)]" style="width: 4%"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- CODE EDITOR -->
-    <div class="flex-1 glass-panel rounded-[2.5rem] flex flex-col overflow-hidden mb-6 border border-white/5">
-        <div class="px-6 py-4 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
-            <div class="flex gap-2">
-                <div class="w-2.5 h-2.5 rounded-full bg-red-500/20 border border-red-500/40"></div>
-                <div class="w-2.5 h-2.5 rounded-full bg-yellow-500/20 border border-yellow-500/40"></div>
-                <div class="w-2.5 h-2.5 rounded-full bg-green-500/20 border border-green-500/40"></div>
-            </div>
-            <span class="text-[10px] font-bold text-gray-500 tracking-widest uppercase">index.deploy.html</span>
-        </div>
-        <textarea id="editor" class="flex-1 bg-transparent p-8 outline-none resize-none text-gray-400 text-sm leading-relaxed" spellcheck="false"></textarea>
-    </div>
-
-    <!-- CONSOLE LOG -->
-    <div class="h-32 glass-panel rounded-3xl p-5 mb-24 md:mb-0 border border-blue-500/10 overflow-y-auto font-mono text-[11px] space-y-2 bg-black/40">
-        <div id="consoleOut" class="text-gray-500 italic">
-            <p class="text-blue-500 font-bold mb-2">>> HostNet Kernel v5.0 Ready.</p>
-        </div>
-    </div>
-
-    <!-- PREMIUM BOTTOM NAV -->
-    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] md:w-[400px] h-20 glass-panel rounded-[2.5rem] flex justify-around items-center px-4 z-50 border border-white/10 shadow-2xl">
-        <button class="w-12 h-12 text-gray-500 hover:text-blue-500 transition-all active:scale-90"><i class="fas fa-th-large text-xl"></i></button>
-        <button class="w-12 h-12 text-gray-500 hover:text-blue-500 transition-all active:scale-90"><i class="fas fa-terminal text-xl"></i></button>
+    <!-- MAIN CONTENT AREA -->
+    <main class="flex-1 flex overflow-hidden relative">
         
-        <button id="deployBtn" class="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-3xl -mt-12 flex items-center justify-center shadow-[0_15px_30px_rgba(59,130,246,0.4)] border-4 border-[#020203] active:scale-95 transition-all rocket-float">
-            <i class="fas fa-terminal text-white text-2xl"></i>
-        </button>
-        
-        <button onclick="toggleModal('securityModal')" class="w-12 h-12 text-gray-500 hover:text-blue-500 transition-all active:scale-90"><i class="fas fa-shield-halved text-xl"></i></button>
-        <button onclick="toggleModal('settingsModal')" class="w-12 h-12 text-gray-500 hover:text-blue-500 transition-all active:scale-90"><i class="fas fa-sliders text-xl"></i></button>
-    </div>
-
-    <!-- MODAL: SETTINGS -->
-    <div id="settingsModal" class="modal fixed inset-0 flex items-center justify-center z-[100] p-6 bg-black/60 backdrop-blur-md">
-        <div class="glass-panel w-full max-w-md p-8 rounded-[3rem] border border-blue-500/20">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold italic uppercase">Configuration</h2>
-                <button onclick="toggleModal('settingsModal')" class="text-gray-500"><i class="fas fa-times"></i></button>
+        <!-- DASHBOARD PANEL (DEFAULT) -->
+        <div id="panel-Dashboard" class="panel-active absolute inset-0 flex flex-col p-4 gap-4 overflow-y-auto pb-24">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="glass p-6 rounded-3xl">
+                    <h3 class="text-xs font-bold text-gray-500 uppercase mb-4">Instance Statistics</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between text-sm"><span class="text-gray-400">Status</span><span class="text-green-500 font-bold">Online</span></div>
+                        <div class="flex justify-between text-sm"><span class="text-gray-400">Node</span><span class="text-white font-bold">Sri Lanka-01</span></div>
+                        <div class="flex justify-between text-sm"><span class="text-gray-400">Uptime</span><span class="text-white font-bold">14d 2h 5m</span></div>
+                    </div>
+                </div>
+                <div class="glass p-6 rounded-3xl">
+                    <h3 class="text-xs font-bold text-gray-500 uppercase mb-4">Deployment Health</h3>
+                    <div class="flex items-center gap-4">
+                        <div class="flex-1 h-2 bg-gray-800 rounded-full overflow-hidden">
+                            <div class="w-[85%] h-full bg-blue-500 shadow-[0_0_10px_#3b82f6]"></div>
+                        </div>
+                        <span class="text-xs font-bold">85%</span>
+                    </div>
+                </div>
             </div>
-            <div class="space-y-6">
+
+            <!-- FILE MANAGER AREA -->
+            <div class="flex-1 glass rounded-3xl overflow-hidden flex flex-col min-h-[400px]">
+                <div class="p-4 border-b border-white/5 flex justify-between items-center bg-white/5">
+                    <span class="text-xs font-bold uppercase tracking-widest text-gray-400">File Manager</span>
+                    <label class="bg-blue-600/10 text-blue-500 text-[10px] px-3 py-1 rounded-lg border border-blue-500/20 cursor-pointer hover:bg-blue-600 hover:text-white transition">
+                        UPLOAD FILE <input type="file" class="hidden" id="fileUpload">
+                    </label>
+                </div>
+                <div class="flex flex-1 overflow-hidden">
+                    <div class="w-48 border-r border-white/5 p-2 overflow-y-auto" id="fileList">
+                        <div class="file-item p-3 rounded-xl text-xs flex items-center gap-3 text-blue-400 bg-blue-400/5 border border-blue-400/20">
+                            <i class="fas fa-file-code"></i> index.js
+                        </div>
+                    </div>
+                    <div class="flex-1 flex flex-col bg-black/20">
+                        <textarea id="editor" class="flex-1 p-6 bg-transparent outline-none resize-none text-sm text-gray-400" spellcheck="false">console.log("HostNet Bot Ready!");</textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TERMINAL PANEL -->
+        <div id="panel-Terminal" class="hidden absolute inset-0 flex flex-col p-4 pb-24">
+            <div class="flex-1 glass bg-black/80 rounded-3xl p-6 font-mono text-xs overflow-y-auto space-y-2" id="termOut">
+                <p class="text-blue-500 font-bold">Welcome to HostNet Terminal v5.0</p>
+                <p class="text-gray-500 italic">Type 'help' for commands...</p>
+            </div>
+            <div class="mt-4 flex gap-3">
+                <input type="text" id="termInput" placeholder="Enter command..." class="flex-1 glass bg-white/5 rounded-xl px-4 py-3 text-xs outline-none focus:border-blue-500">
+                <button class="bg-white/5 px-6 rounded-xl border border-white/10 text-xs">RUN</button>
+            </div>
+        </div>
+
+        <!-- SECURITY PANEL -->
+        <div id="panel-Security" class="hidden absolute inset-0 flex flex-col p-8 pb-24 space-y-6">
+            <h2 class="text-2xl font-bold">Security Center</h2>
+            <div class="glass p-6 rounded-3xl flex items-center justify-between">
                 <div>
-                    <label class="text-[10px] font-bold text-blue-400 uppercase tracking-widest block mb-3">Vercel Authentication</label>
-                    <input type="password" id="apiToken" placeholder="Paste Private Token" class="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-5 text-sm outline-none focus:border-blue-500 transition-all">
+                    <h4 class="font-bold">DDoS Protection</h4>
+                    <p class="text-xs text-gray-500">Auto-mitigation is currently active.</p>
                 </div>
-                <div class="p-4 bg-blue-500/5 rounded-2xl border border-blue-500/10">
-                    <p class="text-xs text-gray-400 leading-relaxed italic">Environment: <span class="text-blue-400">Production</span><br>Region: <span class="text-blue-400">Global Edge</span></p>
-                </div>
-                <button onclick="toggleModal('settingsModal')" class="w-full bg-blue-600 py-4 rounded-2xl font-bold text-sm tracking-widest uppercase">Save Config</button>
+                <div class="w-12 h-6 bg-blue-600 rounded-full relative"><div class="w-4 h-4 bg-white rounded-full absolute right-1 top-1"></div></div>
             </div>
+            <div class="glass p-6 rounded-3xl flex items-center justify-between">
+                <div>
+                    <h4 class="font-bold">SSL Certificate</h4>
+                    <p class="text-xs text-gray-500">Automatic Let's Encrypt SSL.</p>
+                </div>
+                <i class="fas fa-check-circle text-green-500 text-xl"></i>
+            </div>
+        </div>
+
+        <!-- SETTINGS PANEL -->
+        <div id="panel-Settings" class="hidden absolute inset-0 flex flex-col p-8 pb-24 space-y-6">
+            <h2 class="text-2xl font-bold">Project Settings</h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase mb-2 block">Vercel API Token</label>
+                    <input type="password" id="apiToken" placeholder="Paste Token..." class="w-full glass bg-white/5 border border-white/10 rounded-2xl p-4 text-sm outline-none focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase mb-2 block">Node Version</label>
+                    <select class="w-full glass bg-[#151921] border border-white/10 rounded-2xl p-4 text-sm outline-none">
+                        <option>Node.js 18.x</option>
+                        <option selected>Node.js 20.x</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- BOTTOM NAVIGATION BAR -->
+    <nav class="fixed bottom-0 left-0 w-full h-20 glass border-t border-white/5 flex justify-around items-center px-4 z-[100] bg-[#0b0e14]/90 backdrop-blur-xl">
+        <button onclick="switchTab('Dashboard')" class="nav-btn active flex flex-col items-center gap-1 px-4 py-2 transition">
+            <i class="fas fa-columns text-lg"></i><span class="text-[9px] font-bold uppercase tracking-tighter">Dashboard</span>
+        </button>
+        <button onclick="switchTab('Terminal')" class="nav-btn flex flex-col items-center gap-1 px-4 py-2 transition">
+            <i class="fas fa-terminal text-lg"></i><span class="text-[9px] font-bold uppercase tracking-tighter">Terminal</span>
+        </button>
+        <div onclick="initiateDeploy()" class="w-14 h-14 bg-blue-600 rounded-2xl -mt-10 flex items-center justify-center shadow-xl shadow-blue-600/40 border-4 border-[#0b0e14] active:scale-90 transition cursor-pointer">
+            <i class="fas fa-rocket text-white text-xl"></i>
+        </div>
+        <button onclick="switchTab('Security')" class="nav-btn flex flex-col items-center gap-1 px-4 py-2 transition">
+            <i class="fas fa-shield-halved text-lg"></i><span class="text-[9px] font-bold uppercase tracking-tighter">Security</span>
+        </button>
+        <button onclick="switchTab('Settings')" class="nav-btn flex flex-col items-center gap-1 px-4 py-2 transition">
+            <i class="fas fa-cog text-lg"></i><span class="text-[9px] font-bold uppercase tracking-tighter">Settings</span>
+        </button>
+    </nav>
+
+    <!-- DEPLOYMENT OVERLAY -->
+    <div id="deployOverlay" class="hidden fixed inset-0 z-[200] bg-black/90 flex items-center justify-center p-6 backdrop-blur-md">
+        <div class="w-full max-w-sm glass p-8 rounded-[2.5rem] text-center">
+            <div id="deployIcon" class="w-20 h-20 bg-blue-600/10 text-blue-500 rounded-3xl mx-auto flex items-center justify-center text-3xl mb-6 border border-blue-500/20">
+                <i class="fas fa-cloud-arrow-up animate-bounce"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-2">Deploying Build</h3>
+            <p id="deployStatus" class="text-xs text-gray-500 mb-6 font-mono">Preparing environment...</p>
+            <div class="w-full h-1.5 bg-gray-800 rounded-full overflow-hidden mb-8">
+                <div id="deployProgress" class="h-full bg-blue-600 shadow-[0_0_15px_#3b82f6] transition-all duration-300" style="width: 0%"></div>
+            </div>
+            <button onclick="closeDeploy()" class="text-gray-500 text-[10px] font-bold uppercase tracking-widest hover:text-white">Cancel</button>
         </div>
     </div>
 
     <script>
-        const editor = document.getElementById('editor');
-        editor.value = `<!DOCTYPE html>\n<html lang="en">\n<head>\n    <style>\n        body { background: #000; color: #3b82f6; font-family: sans-serif; height: 100vh; display: flex; align-items: center; justify-content: center; }\n        h1 { font-size: 3rem; text-shadow: 0 0 20px #3b82f6; }\n    </style>\n</head>\n<body>\n    <h1>INSTANCE LIVE</h1>\n</body>\n</html>`;
-
-        function log(msg, color = "text-gray-500") {
-            const out = document.getElementById('consoleOut');
-            const p = document.createElement('p');
-            p.className = `border-l-2 border-transparent pl-3 transition-all ${color}`;
-            p.innerHTML = `<span class="opacity-20 mr-2">${new Date().toLocaleTimeString()}</span> ${msg}`;
-            out.prepend(p);
-            gsap.from(p, { x: -20, opacity: 0, duration: 0.5 });
+        // TAB SWITCH LOGIC
+        function switchTab(id) {
+            document.querySelectorAll('main > div').forEach(p => p.classList.add('hidden'));
+            document.getElementById('panel-' + id).classList.remove('hidden');
+            document.getElementById('panel-' + id).classList.add('panel-active');
+            
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            event.currentTarget.classList.add('active');
         }
 
-        function toggleModal(id) {
-            document.getElementById(id).classList.toggle('active');
+        // SMOOTH METRICS SIMULATION
+        function updateMetrics() {
+            const ram = (Math.random() * (160 - 130) + 130).toFixed(1);
+            const cpu = (Math.random() * (4 - 1) + 1).toFixed(1);
+            document.getElementById('ram-disp').innerText = ram + "MB";
+            document.getElementById('cpu-disp').innerText = cpu + "%";
         }
+        setInterval(updateMetrics, 3000);
 
-        async function startDeployment() {
+        // FILE UPLOAD LOGIC
+        document.getElementById('fileUpload').onchange = function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const list = document.getElementById('fileList');
+                const div = document.createElement('div');
+                div.className = "file-item p-3 rounded-xl text-xs flex items-center gap-3 text-gray-400 mt-1 cursor-pointer";
+                div.innerHTML = `<i class="fas fa-file"></i> ${file.name}`;
+                list.appendChild(div);
+                
+                const reader = new FileReader();
+                reader.onload = (ev) => { 
+                    document.getElementById('editor').value = ev.target.result;
+                    switchTab('Dashboard');
+                };
+                reader.readAsText(file);
+            }
+        };
+
+        // DEPLOYMENT SEQUENCE
+        function initiateDeploy() {
             const token = document.getElementById('apiToken').value;
-            if(!token) {
-                log("!! AUTHENTICATION FAILED: TOKEN MISSING", "text-red-500 font-bold");
-                toggleModal('settingsModal');
+            if (!token) {
+                alert("Please add Vercel Token in Settings first!");
+                switchTab('Settings');
                 return;
             }
 
-            document.getElementById('deployBtn').classList.remove('rocket-float');
-            log(">> INITIALIZING EDGE HANDSHAKE...", "text-blue-400 font-bold");
-
-            // SLOW MEMORY CONSUMPTION ANIMATION
-            let progress = 0;
-            const step = () => {
-                progress += 1;
+            const overlay = document.getElementById('deployOverlay');
+            const progress = document.getElementById('deployProgress');
+            const status = document.getElementById('deployStatus');
+            
+            overlay.classList.remove('hidden');
+            let p = 0;
+            const itv = setInterval(() => {
+                p += Math.random() * 5;
+                if(p > 100) p = 100;
+                progress.style.width = p + "%";
                 
-                // Real-time curve simulation
-                const ram = 128 + Math.pow(progress, 1.35); 
-                const cpu = 4 + (progress * 0.8);
-
-                if (progress <= 100) {
-                    document.getElementById('ram-val').innerText = `${Math.floor(ram)} MB`;
-                    document.getElementById('cpu-val').innerText = `${Math.floor(cpu)}%`;
-                    document.getElementById('ram-bar').style.width = `${(ram/10)}%`;
-                    document.getElementById('cpu-bar').style.width = `${cpu}%`;
-
-                    if(progress === 20) log(">> SYNCING REPOSITORY DATA...", "text-gray-400");
-                    if(progress === 50) log(">> COMPRESSING ASSETS...", "text-yellow-500");
-                    if(progress === 80) log(">> GENERATING EDGE ROUTING...", "text-purple-400");
-
-                    setTimeout(step, 100); // 10 seconds total
-                } else {
-                    completeDeployment(token);
+                if(p > 10) status.innerText = "Indexing files...";
+                if(p > 40) status.innerText = "Uploading to Edge Node...";
+                if(p > 70) status.innerText = "Optimizing Engine...";
+                
+                if(p >= 100) {
+                    clearInterval(itv);
+                    status.innerText = "LIVE AT: bot-deployment-x2.vercel.app";
+                    status.classList.add('text-green-500');
+                    document.getElementById('deployIcon').innerHTML = '<i class="fas fa-check"></i>';
+                    document.getElementById('deployIcon').classList.add('text-green-500', 'bg-green-500/10', 'border-green-500/20');
                 }
-            };
-            step();
+            }, 200);
         }
 
-        async function completeDeployment(token) {
-            try {
-                const res = await fetch('https://api.vercel.com/v13/deployments', {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        name: 'hostnet-premium',
-                        files: [{ file: 'index.html', data: editor.value }],
-                        projectSettings: { framework: null }
-                    })
-                });
-                const data = await res.json();
-                
-                // Smooth Reset
-                gsap.to(".stat-bar", { width: "10%", duration: 2 });
-                document.getElementById('deployBtn').classList.add('rocket-float');
+        function closeDeploy() {
+            document.getElementById('deployOverlay').classList.add('hidden');
+            location.reload(); // Simple reset
+        }
 
-                if(data.url) {
-                    log(">> DEPLOYMENT STABLE: " + data.url, "text-green-500 font-black glow-text");
-                    setTimeout(() => window.open(`https://${data.url}`, '_blank'), 1000);
-                } else {
-                    log("!! VERCEL REJECTION: " + data.error.message, "text-red-400");
-                }
-            } catch (e) {
-                log("!! CRITICAL ENGINE FAILURE", "text-red-600");
+        // TERMINAL COMMANDS
+        document.getElementById('termInput').onkeydown = function(e) {
+            if(e.key === 'Enter') {
+                const cmd = this.value;
+                const out = document.getElementById('termOut');
+                out.innerHTML += `<p class="text-gray-300 font-bold">$ ${cmd}</p>`;
+                if(cmd === 'help') out.innerHTML += `<p class="text-yellow-500">Available: status, reboot, logs, clear</p>`;
+                else if(cmd === 'status') out.innerHTML += `<p class="text-green-500 font-bold">Node-01: ACTIVE | Uptime: 100%</p>`;
+                else out.innerHTML += `<p class="text-red-400">Command not found.</p>`;
+                this.value = '';
+                out.scrollTop = out.scrollHeight;
             }
-        }
-
-        document.getElementById('deployBtn').onclick = startDeployment;
+        };
     </script>
 </body>
 </html>
