@@ -20,14 +20,13 @@
             margin: 0;
         }
 
-        /* Views Logic */
         .view {
             position: absolute;
             inset: 0;
             display: none;
             flex-direction: column;
             padding: 24px;
-            padding-bottom: 100px; /* Space for FAB */
+            padding-bottom: 100px;
             animation: view-in 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
         .view.active { display: flex; }
@@ -35,7 +34,6 @@
 
         .card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 20px; }
 
-        /* --- THE COMMAND TRIGGER (FAB) --- */
         .fab-container {
             position: fixed;
             bottom: 30px;
@@ -59,7 +57,6 @@
         .fab-trigger svg { stroke: #000; width: 28px; height: 28px; transition: 0.4s; }
         .fab-trigger.open { transform: rotate(135deg); background: #ffffff; box-shadow: 0 10px 20px rgba(255,255,255,0.1); }
 
-        /* --- FULLSCREEN MENU OVERLAY --- */
         .menu-overlay {
             position: fixed;
             inset: 0;
@@ -73,7 +70,6 @@
             gap: 20px;
         }
         .menu-overlay.active { display: flex; animation: fade-in 0.3s ease; }
-        @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
 
         .menu-item {
             width: 80%;
@@ -93,7 +89,6 @@
 
         #editor { font-family: 'JetBrains Mono', monospace; background: transparent; color: #555; border: none; resize: none; width: 100%; height: 100%; font-size: 14px; }
         
-        /* Glass Header */
         header { background: rgba(3,3,3,0.7); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
     </style>
 </head>
@@ -114,7 +109,8 @@
         
         <!-- DASHBOARD -->
         <div id="view-home" class="view active">
-            <div class="grid grid-cols-2 gap-4 mb-6">
+            <!-- Stats Moved Here: Under Header, Above Editor -->
+            <div class="grid grid-cols-2 gap-4 mb-4">
                 <div class="card bg-gradient-to-br from-[#0a0a0a] to-[#050505]">
                     <p class="text-[9px] font-black text-gray-600 uppercase mb-2">Core Usage</p>
                     <p id="cpu-val" class="text-2xl font-bold tracking-tighter">--%</p>
@@ -192,7 +188,6 @@ server.ignite({
     </div>
 
     <script>
-        // TOGGLE MENU
         function toggleMenu() {
             const fab = document.getElementById('fabTrigger');
             const overlay = document.getElementById('menuOverlay');
@@ -200,32 +195,24 @@ server.ignite({
             overlay.classList.toggle('active');
         }
 
-        // SWITCH VIEW
         function switchView(id) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.getElementById('view-' + id).classList.add('active');
-            toggleMenu(); // Close menu after selection
+            if(document.getElementById('menuOverlay').classList.contains('active')) toggleMenu();
         }
 
-        // STATS
         setInterval(() => {
             document.getElementById('cpu-val').innerText = (Math.random() * 3 + 2).toFixed(1) + "%";
             document.getElementById('ram-val').innerText = (Math.floor(Math.random() * 5) + 126) + "MB";
         }, 2500);
 
-        // DEPLOY
         function startDeploy() {
             const key = document.getElementById('apiKey').value;
-            if(!key) {
-                alert("ERR: MASTER_KEY_NOT_SET");
-                switchView('config');
-                return;
-            }
+            if(!key) { alert("ERR: MASTER_KEY_NOT_SET"); switchView('config'); return; }
             toggleMenu();
             const btn = document.getElementById('fabTrigger');
             btn.style.background = "#fff";
             btn.innerHTML = '<div class="w-6 h-6 border-2 border-black border-t-transparent rounded-full animate-spin"></div>';
-            
             setTimeout(() => {
                 btn.style.background = "#22c55e";
                 btn.innerHTML = '<svg viewBox="0 0 24 24" stroke="#000"><polyline points="20 6 9 17 4 12"/></svg>';
@@ -236,7 +223,6 @@ server.ignite({
             }, 3000);
         }
 
-        // SHELL
         document.getElementById('shell-in').onkeydown = function(e) {
             if(e.key === 'Enter') {
                 const out = document.getElementById('term-out');
