@@ -2,247 +2,367 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HostNet | Bot Hosting Ultra</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AURA | Premium Cloud</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=JetBrains+Mono&display=swap');
-        
-        :root { --bg: #030406; --card: #0d1117; --accent: #3b82f6; --text: #f8fafc; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
-        
-        /* Premium Glass Look */
-        .glass { background: rgba(13, 17, 23, 0.8); backdrop-filter: blur(24px); border: 1px solid rgba(255,255,255,0.06); }
-        .neon-glow { box-shadow: 0 0 20px rgba(59, 130, 246, 0.2); }
-        
-        /* Smooth Panel Transition */
-        .view-panel { position: absolute; inset: 0; width: 100%; height: 100%; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); opacity: 0; pointer-events: none; transform: translateY(20px); }
-        .view-panel.active { opacity: 1; pointer-events: auto; transform: translateY(0); }
-        
-        #editor { font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.6; }
-        .nav-btn { position: relative; transition: all 0.3s; }
-        .nav-btn.active { color: var(--accent); }
-        .nav-btn.active::after { content: ''; position: absolute; top: -10px; width: 4px; height: 4px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 10px var(--accent); }
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&family=JetBrains+Mono&display=swap');
+
+        :root {
+            --accent: #3b82f6;
+            --accent-glow: rgba(59, 130, 246, 0.5);
+            --bg: #020203;
+            --surface: rgba(255, 255, 255, 0.03);
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: var(--bg);
+            background-image: 
+                radial-gradient(circle at 50% -20%, #1e293b 0%, transparent 50%),
+                radial-gradient(circle at 0% 100%, #0f172a 0%, transparent 30%);
+            color: #e2e8f0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* High-End Border Animation */
+        .premium-card {
+            position: relative;
+            background: rgba(10, 10, 15, 0.8);
+            border-radius: 24px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            overflow: hidden;
+        }
+
+        .premium-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 24px;
+            padding: 1.5px;
+            background: linear-gradient(135deg, rgba(59,130,246,0.4), transparent, rgba(168,85,247,0.4));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        /* Glass Buttons */
+        .glass-btn {
+            background: var(--surface);
+            border: 1px solid rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .glass-btn:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -10px var(--accent-glow);
+        }
+
+        .active-nav {
+            background: var(--accent) !important;
+            color: white !important;
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        /* View Switching Logic */
+        .view-section {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            transform: scale(0.98) translateY(10px);
+            pointer-events: none;
+            transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem;
+        }
+
+        .view-section.active {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            pointer-events: auto;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+
+        /* Animation for Stat Bars */
+        .progress-fill {
+            transition: width 1.5s cubic-bezier(0.65, 0, 0.35, 1);
+        }
+
+        .nav-bar {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 48px);
+            max-width: 400px;
+            height: 72px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0 12px;
+            z-index: 1000;
+        }
     </style>
 </head>
-<body class="flex flex-col">
+<body>
 
-    <!-- TOP BAR -->
-    <header class="h-16 flex items-center justify-between px-6 border-b border-white/5 bg-black/40 backdrop-blur-md shrink-0 z-50">
+    <!-- TOP HEADER -->
+    <div class="fixed top-0 left-0 w-full p-6 flex justify-between items-center z-50">
         <div class="flex items-center gap-3">
-            <div class="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center neon-glow">
-                <i class="fas fa-bolt text-xs text-white"></i>
+            <div class="w-10 h-10 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-900/50">
+                <i class="fas fa-atom text-white text-lg"></i>
             </div>
-            <h1 class="text-sm font-black uppercase tracking-widest italic">Host<span class="text-blue-500">Net</span></h1>
-        </div>
-        <div class="flex items-center gap-4 text-[10px] font-bold uppercase tracking-wider">
-            <div class="flex items-center gap-2 px-3 py-1 bg-green-500/10 text-green-500 rounded-full">
-                <div class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div> Node-01
+            <div>
+                <h1 class="text-lg font-bold tracking-tight leading-none text-white">AURA<span class="text-blue-500 font-light">CLOUD</span></h1>
+                <span class="text-[9px] uppercase tracking-[0.2em] text-gray-500 font-bold">Quantum Engine v4</span>
             </div>
         </div>
-    </header>
-
-    <!-- CONTENT VIEWER -->
-    <main class="flex-1 relative overflow-hidden">
-
-        <!-- DASHBOARD (MAIN VIEW) -->
-        <div id="view-Dashboard" class="view-panel active p-4 md:p-8 flex flex-col gap-6">
-            <div class="grid grid-cols-2 gap-4">
-                <div class="glass p-5 rounded-3xl">
-                    <p class="text-[10px] font-bold text-gray-500 uppercase mb-1">RAM Usage</p>
-                    <p class="text-xl font-black italic text-blue-400" id="ram-disp">124.5 MB</p>
-                    <div class="w-full bg-white/5 h-1 rounded-full mt-3 overflow-hidden">
-                        <div id="ram-bar" class="bg-blue-600 h-full transition-all duration-1000" style="width: 25%"></div>
-                    </div>
-                </div>
-                <div class="glass p-5 rounded-3xl">
-                    <p class="text-[10px] font-bold text-gray-500 uppercase mb-1">CPU Load</p>
-                    <p class="text-xl font-black italic text-purple-400" id="cpu-disp">3.2%</p>
-                    <div class="w-full bg-white/5 h-1 rounded-full mt-3 overflow-hidden">
-                        <div id="cpu-bar" class="bg-purple-600 h-full transition-all duration-1000" style="width: 10%"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="flex-1 glass rounded-[2.5rem] flex flex-col overflow-hidden border-white/10">
-                <div class="px-6 py-4 border-b border-white/5 flex justify-between items-center bg-white/5">
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Code Editor</span>
-                    <label class="cursor-pointer text-[10px] font-bold text-blue-500 hover:text-blue-400">
-                        <i class="fas fa-upload mr-1"></i> UPLOAD
-                        <input type="file" id="fileUpload" class="hidden">
-                    </label>
-                </div>
-                <textarea id="editor" class="flex-1 p-6 bg-transparent outline-none resize-none text-gray-300" spellcheck="false">console.log("HostNet Pro Initialized...");</textarea>
-            </div>
-        </div>
-
-        <!-- TERMINAL VIEW -->
-        <div id="view-Terminal" class="view-panel p-4 md:p-8">
-            <div class="h-full glass bg-black/60 rounded-[2.5rem] p-6 flex flex-col border-blue-500/20">
-                <div class="flex-1 font-mono text-xs overflow-y-auto space-y-2 text-gray-400" id="termOut">
-                    <p class="text-blue-500 font-bold underline mb-4">TERMINAL v5.0.1_STABLE</p>
-                </div>
-                <div class="mt-4 flex gap-3 border-t border-white/5 pt-4">
-                    <span class="text-blue-500 font-bold">$</span>
-                    <input type="text" id="termInput" placeholder="Enter shell command..." class="flex-1 bg-transparent text-xs outline-none text-white">
-                </div>
-            </div>
-        </div>
-
-        <!-- SECURITY VIEW -->
-        <div id="view-Security" class="view-panel p-6 flex flex-col justify-center items-center">
-            <div class="w-full max-w-sm glass p-8 rounded-[3rem] text-center border-green-500/10">
-                <div class="w-20 h-20 bg-green-500/10 rounded-3xl mx-auto flex items-center justify-center text-green-500 text-3xl mb-6"><i class="fas fa-shield-check"></i></div>
-                <h2 class="text-xl font-bold mb-2">Shield Protection</h2>
-                <p class="text-xs text-gray-500 mb-8 leading-relaxed">Auto-DDoS mitigation and SSL encryption are active for this instance.</p>
-                <button onclick="switchView('Dashboard')" class="w-full py-4 bg-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition">Back to Console</button>
-            </div>
-        </div>
-
-        <!-- SETTINGS VIEW -->
-        <div id="view-Settings" class="view-panel p-6">
-            <div class="h-full glass rounded-[3rem] p-8 flex flex-col">
-                <h2 class="text-2xl font-black italic uppercase mb-8">Settings</h2>
-                <div class="space-y-6 flex-1">
-                    <div class="space-y-2">
-                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Vercel Auth Token</label>
-                        <input type="password" id="apiToken" placeholder="Paste Private Key" class="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-sm outline-none focus:border-blue-500">
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Runtime Version</label>
-                        <select class="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-sm outline-none appearance-none">
-                            <option>Node.js 20 (LTS)</option>
-                            <option>Node.js 18</option>
-                        </select>
-                    </div>
-                </div>
-                <button onclick="switchView('Dashboard')" class="w-full py-4 bg-blue-600 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-blue-600/20">Save and Close</button>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- DEPLOYMENT OVERLAY -->
-    <div id="deployOverlay" class="hidden fixed inset-0 z-[100] bg-black/95 flex items-center justify-center backdrop-blur-xl">
-        <div class="text-center w-full max-w-xs">
-            <div id="deployIcon" class="text-blue-500 text-5xl mb-6 animate-pulse"><i class="fas fa-rocket"></i></div>
-            <h3 class="font-bold text-lg mb-1">Pushing Deployment</h3>
-            <p id="deployStatus" class="text-[10px] text-gray-500 uppercase tracking-widest mb-8">Building Containers...</p>
-            <div class="w-full h-1 bg-white/10 rounded-full overflow-hidden mb-8">
-                <div id="deployBar" class="h-full bg-blue-500 shadow-[0_0_15px_#3b82f6]" style="width: 0%"></div>
-            </div>
-            <button onclick="location.reload()" class="text-[10px] font-bold text-gray-600 hover:text-white uppercase tracking-widest">Abort Process</button>
+        <div class="flex gap-2">
+            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_#22c55e]"></div>
         </div>
     </div>
 
+    <!-- MAIN CONTENT AREA -->
+    <main class="relative h-full pt-20 pb-28">
+
+        <!-- DASHBOARD VIEW -->
+        <section id="view-dash" class="view-section active">
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="premium-card p-5">
+                    <div class="flex justify-between items-start mb-2">
+                        <i class="fas fa-microchip text-blue-500 text-xs"></i>
+                        <span class="text-[10px] text-gray-500 font-bold uppercase">CPU</span>
+                    </div>
+                    <h3 id="cpu-text" class="text-2xl font-bold tracking-tighter">0.0%</h3>
+                    <div class="w-full h-1 bg-white/5 rounded-full mt-3 overflow-hidden">
+                        <div id="cpu-bar" class="progress-fill h-full bg-blue-500" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="premium-card p-5">
+                    <div class="flex justify-between items-start mb-2">
+                        <i class="fas fa-memory text-purple-500 text-xs"></i>
+                        <span class="text-[10px] text-gray-500 font-bold uppercase">RAM</span>
+                    </div>
+                    <h3 id="ram-text" class="text-2xl font-bold tracking-tighter">0 MB</h3>
+                    <div class="w-full h-1 bg-white/5 rounded-full mt-3 overflow-hidden">
+                        <div id="ram-bar" class="progress-fill h-full bg-purple-500" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex-1 premium-card flex flex-col">
+                <div class="px-6 py-4 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">main.js</span>
+                    </div>
+                    <button class="text-[10px] text-blue-500 font-bold hover:text-white transition">AUTO-SAVE</button>
+                </div>
+                <textarea id="editor" class="flex-1 p-6 bg-transparent outline-none resize-none text-sm font-mono text-gray-400 leading-relaxed" spellcheck="false">/**
+ * AURA Cloud Instance
+ * Build: v4.0.12
+ */
+
+async function initialize() {
+    console.log("System Online...");
+}</textarea>
+            </div>
+        </section>
+
+        <!-- TERMINAL VIEW -->
+        <section id="view-term" class="view-section">
+            <div class="flex-1 premium-card bg-black/40 flex flex-col">
+                <div id="term-body" class="flex-1 p-6 font-mono text-[12px] overflow-y-auto space-y-2">
+                    <p class="text-blue-500 font-bold tracking-tighter mb-4">-- AURA QUANTUM SHELL v4.0 --</p>
+                    <p class="text-gray-500">Type 'help' to see available commands.</p>
+                </div>
+                <div class="p-4 border-t border-white/5 flex gap-3 items-center">
+                    <span class="text-blue-500 font-black ml-2">❯</span>
+                    <input type="text" id="term-input" class="flex-1 bg-transparent border-none outline-none text-sm text-white" placeholder="Execute command...">
+                </div>
+            </div>
+        </section>
+
+        <!-- SETTINGS VIEW -->
+        <section id="view-set" class="view-section">
+            <div class="premium-card p-8 flex flex-col gap-6">
+                <h2 class="text-xl font-bold tracking-tight italic">CONFIGURATION</h2>
+                
+                <div class="space-y-4">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Authorization Key</label>
+                        <input type="password" id="authKey" class="w-full glass-btn rounded-2xl py-4 px-6 text-sm outline-none text-blue-400" placeholder="••••••••••••••••">
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="glass-btn p-4 rounded-2xl text-center">
+                            <p class="text-[9px] text-gray-500 uppercase font-bold mb-1">Region</p>
+                            <p class="text-xs font-bold">Global-Edge</p>
+                        </div>
+                        <div class="glass-btn p-4 rounded-2xl text-center border-blue-500/30">
+                            <p class="text-[9px] text-gray-500 uppercase font-bold mb-1">Node</p>
+                            <p class="text-xs font-bold text-blue-500">v20.x LTS</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="switchView('dash', this)" class="mt-4 w-full py-4 bg-blue-600 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-blue-900/40 active:scale-95 transition-all">Save Environment</button>
+            </div>
+        </section>
+
+    </main>
+
     <!-- NAVIGATION BAR -->
-    <nav class="h-20 bg-black/80 border-t border-white/5 flex justify-around items-center px-4 shrink-0 z-50">
-        <button onclick="switchView('Dashboard')" class="nav-btn active flex flex-col items-center gap-1 p-2">
-            <i class="fas fa-grid-2 text-xl"></i>
-            <span class="text-[8px] font-black uppercase tracking-tighter">Dash</span>
+    <nav class="nav-bar premium-card">
+        <button onclick="switchView('dash', this)" class="nav-item flex flex-col items-center gap-1 active-nav w-12 h-12 justify-center rounded-2xl transition-all">
+            <i class="fas fa-home-alt text-lg"></i>
         </button>
-        <button onclick="switchView('Terminal')" class="nav-btn flex flex-col items-center gap-1 p-2">
-            <i class="fas fa-terminal text-xl"></i>
-            <span class="text-[8px] font-black uppercase tracking-tighter">Term</span>
+        <button onclick="switchView('term', this)" class="nav-item flex flex-col items-center gap-1 w-12 h-12 justify-center rounded-2xl transition-all text-gray-500">
+            <i class="fas fa-terminal text-lg"></i>
         </button>
         
-        <div onclick="startDeploy()" class="w-14 h-14 bg-blue-600 rounded-[1.2rem] -mt-10 flex items-center justify-center shadow-2xl shadow-blue-600/40 border-4 border-[#030406] active:scale-90 transition-all cursor-pointer">
-            <i class="fas fa-paper-plane text-white text-lg"></i>
+        <div onclick="startDeployment()" class="w-14 h-14 bg-gradient-to-tr from-blue-600 to-purple-600 rounded-[20px] flex items-center justify-center shadow-2xl shadow-blue-500/40 -mt-10 border-[5px] border-[#020203] active:scale-90 transition-all cursor-pointer group">
+            <i class="fas fa-bolt text-white text-xl group-hover:animate-pulse"></i>
         </div>
         
-        <button onclick="switchView('Security')" class="nav-btn flex flex-col items-center gap-1 p-2">
-            <i class="fas fa-shield text-xl"></i>
-            <span class="text-[8px] font-black uppercase tracking-tighter">Safe</span>
+        <button onclick="switchView('set', this)" class="nav-item flex flex-col items-center gap-1 w-12 h-12 justify-center rounded-2xl transition-all text-gray-500">
+            <i class="fas fa-gear text-lg"></i>
         </button>
-        <button onclick="switchView('Settings')" class="nav-btn flex flex-col items-center gap-1 p-2">
-            <i class="fas fa-sliders text-xl"></i>
-            <span class="text-[8px] font-black uppercase tracking-tighter">Set</span>
+        <button class="nav-item flex flex-col items-center gap-1 w-12 h-12 justify-center rounded-2xl transition-all text-gray-500">
+            <i class="fas fa-shield-heart text-lg"></i>
         </button>
     </nav>
 
+    <!-- DEPLOY MODAL -->
+    <div id="deployModal" class="hidden fixed inset-0 z-[2000] bg-black/90 backdrop-blur-2xl flex items-center justify-center p-8">
+        <div class="w-full max-w-sm text-center">
+            <div id="loader-icon" class="w-20 h-20 bg-blue-600/10 border border-blue-500/20 rounded-[30px] mx-auto flex items-center justify-center text-blue-500 text-3xl mb-8 relative">
+                <i class="fas fa-rocket"></i>
+                <div class="absolute inset-0 rounded-[30px] border-2 border-blue-500 border-t-transparent animate-spin"></div>
+            </div>
+            <h2 class="text-xl font-bold tracking-tight mb-2">INITIALIZING DEPLOY</h2>
+            <p id="deploy-msg" class="text-[10px] text-gray-500 uppercase tracking-widest mb-10 font-mono">Allocating virtual core...</p>
+            
+            <div class="w-full h-[2px] bg-white/5 rounded-full overflow-hidden mb-10">
+                <div id="deploy-progress" class="h-full bg-blue-500 shadow-[0_0_15px_#3b82f6]" style="width: 0%"></div>
+            </div>
+
+            <button onclick="closeDeploy()" class="text-[10px] font-bold text-gray-600 uppercase tracking-widest hover:text-white transition">Abort Operation</button>
+        </div>
+    </div>
+
     <script>
-        // PANEL SWITCHER (PREVENTS OVERLAPPING)
-        function switchView(viewId) {
-            document.querySelectorAll('.view-panel').forEach(v => v.classList.remove('active'));
+        // VIEW CONTROLLER
+        function switchView(viewId, btn) {
+            document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
             document.getElementById('view-' + viewId).classList.add('active');
             
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            if(event && event.currentTarget.classList.contains('nav-btn')) {
-                event.currentTarget.classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active-nav', 'text-white'));
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.add('text-gray-500'));
+            
+            if(btn) {
+                btn.classList.add('active-nav', 'text-white');
+                btn.classList.remove('text-gray-500');
             }
         }
 
-        // SMOOTH STATS
-        setInterval(() => {
-            const r = (Math.random() * 20 + 120).toFixed(1);
-            const c = (Math.random() * 5 + 2).toFixed(1);
-            document.getElementById('ram-disp').innerText = r + " MB";
-            document.getElementById('cpu-disp').innerText = c + "%";
-            document.getElementById('ram-bar').style.width = (r/10) + "%";
-            document.getElementById('cpu-bar').style.width = (c*2) + "%";
-        }, 3000);
+        // REAL-TIME ANALYTICS SIMULATION
+        function updateStats() {
+            const cpu = (Math.random() * 4 + 1).toFixed(1);
+            const ram = Math.floor(Math.random() * 20 + 128);
+            
+            document.getElementById('cpu-text').innerText = cpu + "%";
+            document.getElementById('cpu-bar').style.width = (cpu * 10) + "%";
+            
+            document.getElementById('ram-text').innerText = ram + " MB";
+            document.getElementById('ram-bar').style.width = (ram / 5) + "%";
+        }
+        setInterval(updateStats, 3000);
+        updateStats();
 
-        // DEPLOYMENT LOGIC
-        function startDeploy() {
-            const token = document.getElementById('apiToken').value;
-            if(!token) {
-                alert("Enter Vercel Token in Settings first!");
-                switchView('Settings');
+        // PREMIUM DEPLOYMENT SEQUENCE
+        function startDeployment() {
+            const key = document.getElementById('authKey').value;
+            if(!key) {
+                alert("CRITICAL: Authentication Key Missing");
+                switchView('set', document.querySelector('.fa-gear').parentElement);
                 return;
             }
 
-            const overlay = document.getElementById('deployOverlay');
-            overlay.classList.remove('hidden');
+            const modal = document.getElementById('deployModal');
+            const bar = document.getElementById('deploy-progress');
+            const msg = document.getElementById('deploy-msg');
             
-            let p = 0;
-            const itv = setInterval(() => {
-                p += Math.random() * 8;
-                if(p > 100) p = 100;
-                document.getElementById('deployBar').style.width = p + "%";
+            modal.classList.remove('hidden');
+            let progress = 0;
+            
+            const interval = setInterval(() => {
+                progress += Math.random() * 12;
+                if(progress > 100) progress = 100;
+                bar.style.width = progress + "%";
                 
-                if(p > 20) document.getElementById('deployStatus').innerText = "Compiling Assets...";
-                if(p > 60) document.getElementById('deployStatus').innerText = "Routing to Edge...";
+                if(progress > 20) msg.innerText = "Encrypting Source Code...";
+                if(progress > 50) msg.innerText = "Spawning Docker Instance...";
+                if(progress > 80) msg.innerText = "Finalizing Handshake...";
                 
-                if(p >= 100) {
-                    clearInterval(itv);
-                    document.getElementById('deployStatus').innerText = "DEPLOYMENT STABLE";
-                    document.getElementById('deployStatus').classList.add('text-green-500');
-                    document.getElementById('deployIcon').innerHTML = '<i class="fas fa-check-double"></i>';
-                    document.getElementById('deployIcon').classList.add('text-green-500');
-                    
-                    setTimeout(() => overlay.classList.add('hidden'), 2000);
+                if(progress === 100) {
+                    clearInterval(interval);
+                    msg.innerText = "INSTANCE DEPLOYED SUCCESSFULLY";
+                    msg.style.color = "#22c55e";
+                    document.getElementById('loader-icon').innerHTML = '<i class="fas fa-check"></i>';
+                    document.getElementById('loader-icon').classList.replace('text-blue-500', 'text-green-500');
+                    setTimeout(closeDeploy, 2500);
                 }
             }, 400);
         }
 
-        // FILE HANDLER
-        document.getElementById('fileUpload').onchange = function(e) {
-            const file = e.target.files[0];
-            if(file) {
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                    document.getElementById('editor').value = ev.target.result;
-                    alert("File loaded: " + file.name);
-                };
-                reader.readAsText(file);
-            }
-        };
+        function closeDeploy() {
+            document.getElementById('deployModal').classList.add('hidden');
+            // Reset for next time
+            document.getElementById('deploy-progress').style.width = "0%";
+            document.getElementById('deploy-msg').innerText = "Allocating virtual core...";
+            document.getElementById('deploy-msg').style.color = "";
+            document.getElementById('loader-icon').innerHTML = '<i class="fas fa-rocket"></i>';
+        }
 
-        // TERMINAL SIM
-        document.getElementById('termInput').onkeydown = function(e) {
+        // TERMINAL COMMAND HANDLING
+        document.getElementById('term-input').addEventListener('keydown', function(e) {
             if(e.key === 'Enter') {
-                const cmd = this.value;
-                const out = document.getElementById('termOut');
-                out.innerHTML += `<p class="text-white mt-2">$ ${cmd}</p>`;
-                if(cmd === 'help') out.innerHTML += `<p class="text-yellow-500">Available: status, clear, reboot</p>`;
-                else if(cmd === 'status') out.innerHTML += `<p class="text-green-500">HostNet Engine v5: Healthy</p>`;
-                else if(cmd === 'clear') out.innerHTML = '';
-                else out.innerHTML += `<p class="text-red-400">Command not found: ${cmd}</p>`;
+                const val = this.value.toLowerCase();
+                const body = document.getElementById('term-body');
+                body.innerHTML += `<div class="flex gap-2"><span class="text-blue-500">❯</span><span class="text-white">${this.value}</span></div>`;
+                
+                if(val === 'help') {
+                    body.innerHTML += `<p class="text-gray-500 ml-4">Available: status, logs, clear, neofetch</p>`;
+                } else if(val === 'status') {
+                    body.innerHTML += `<p class="text-green-500 ml-4 italic">● All systems operational. Latency: 12ms</p>`;
+                } else if(val === 'clear') {
+                    body.innerHTML = '';
+                } else if(val === 'neofetch') {
+                    body.innerHTML += `<pre class="text-blue-400 text-[10px]">
+   OS: AuraOS v4.0
+   Kernel: 5.15.0-quantum
+   Uptime: 24 days
+   Shell: aura-sh 1.2
+   CPU: Virtual Xeon (2) @ 2.4GHz
+   RAM: 128MB / 512MB</pre>`;
+                } else {
+                    body.innerHTML += `<p class="text-red-500/50 ml-4">Command not recognized: ${val}</p>`;
+                }
                 this.value = '';
-                out.scrollTop = out.scrollHeight;
+                body.scrollTop = body.scrollHeight;
             }
-        };
+        });
     </script>
 </body>
 </html>
