@@ -3,262 +3,242 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HostNet | Bot Hosting Pro</title>
+    <title>HostNet | Bot Hosting Ultra</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono&family=Outfit:wght@300;400;700&display=swap');
-        :root { --bg: #0b0e14; --card: #151921; --accent: #3b82f6; }
-        body { font-family: 'Outfit', sans-serif; background: var(--bg); color: #e2e8f0; overflow: hidden; height: 100vh; }
-        .panel-active { display: flex !important; }
-        .glass { background: var(--card); border: 1px solid rgba(255,255,255,0.05); }
-        .file-item:hover { background: rgba(59, 130, 246, 0.1); }
-        #editor { font-family: 'JetBrains Mono', monospace; }
-        .nav-btn.active { color: var(--accent); background: rgba(59, 130, 246, 0.1); border-radius: 15px; }
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-thumb { background: #2a2f3a; border-radius: 10px; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=JetBrains+Mono&display=swap');
+        
+        :root { --bg: #030406; --card: #0d1117; --accent: #3b82f6; --text: #f8fafc; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
+        
+        /* Premium Glass Look */
+        .glass { background: rgba(13, 17, 23, 0.8); backdrop-filter: blur(24px); border: 1px solid rgba(255,255,255,0.06); }
+        .neon-glow { box-shadow: 0 0 20px rgba(59, 130, 246, 0.2); }
+        
+        /* Smooth Panel Transition */
+        .view-panel { position: absolute; inset: 0; width: 100%; height: 100%; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); opacity: 0; pointer-events: none; transform: translateY(20px); }
+        .view-panel.active { opacity: 1; pointer-events: auto; transform: translateY(0); }
+        
+        #editor { font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.6; }
+        .nav-btn { position: relative; transition: all 0.3s; }
+        .nav-btn.active { color: var(--accent); }
+        .nav-btn.active::after { content: ''; position: absolute; top: -10px; width: 4px; height: 4px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 10px var(--accent); }
     </style>
 </head>
 <body class="flex flex-col">
 
-    <!-- TOP HEADER -->
-    <header class="h-16 glass flex items-center justify-between px-6 shrink-0">
+    <!-- TOP BAR -->
+    <header class="h-16 flex items-center justify-between px-6 border-b border-white/5 bg-black/40 backdrop-blur-md shrink-0 z-50">
         <div class="flex items-center gap-3">
-            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-600/20">
-                <i class="fas fa-server text-sm text-white"></i>
+            <div class="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center neon-glow">
+                <i class="fas fa-bolt text-xs text-white"></i>
             </div>
-            <h1 class="font-bold tracking-tight text-lg uppercase">HostNet <span class="text-blue-500 text-xs">v5.0</span></h1>
+            <h1 class="text-sm font-black uppercase tracking-widest italic">Host<span class="text-blue-500">Net</span></h1>
         </div>
-        <div class="flex items-center gap-4">
-            <div class="hidden md:flex items-center gap-6 mr-6 text-[11px] font-bold text-gray-500 uppercase">
-                <div class="flex flex-col"><span class="text-blue-400" id="ram-disp">142MB</span><span>Memory</span></div>
-                <div class="flex flex-col"><span class="text-purple-400" id="cpu-disp">2.1%</span><span>CPU</span></div>
+        <div class="flex items-center gap-4 text-[10px] font-bold uppercase tracking-wider">
+            <div class="flex items-center gap-2 px-3 py-1 bg-green-500/10 text-green-500 rounded-full">
+                <div class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div> Node-01
             </div>
-            <button id="mainDeploy" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-5 py-2 rounded-xl transition active:scale-95 shadow-lg shadow-blue-600/20">
-                DEPLOY
-            </button>
         </div>
     </header>
 
-    <!-- MAIN CONTENT AREA -->
-    <main class="flex-1 flex overflow-hidden relative">
-        
-        <!-- DASHBOARD PANEL (DEFAULT) -->
-        <div id="panel-Dashboard" class="panel-active absolute inset-0 flex flex-col p-4 gap-4 overflow-y-auto pb-24">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="glass p-6 rounded-3xl">
-                    <h3 class="text-xs font-bold text-gray-500 uppercase mb-4">Instance Statistics</h3>
-                    <div class="space-y-4">
-                        <div class="flex justify-between text-sm"><span class="text-gray-400">Status</span><span class="text-green-500 font-bold">Online</span></div>
-                        <div class="flex justify-between text-sm"><span class="text-gray-400">Node</span><span class="text-white font-bold">Sri Lanka-01</span></div>
-                        <div class="flex justify-between text-sm"><span class="text-gray-400">Uptime</span><span class="text-white font-bold">14d 2h 5m</span></div>
+    <!-- CONTENT VIEWER -->
+    <main class="flex-1 relative overflow-hidden">
+
+        <!-- DASHBOARD (MAIN VIEW) -->
+        <div id="view-Dashboard" class="view-panel active p-4 md:p-8 flex flex-col gap-6">
+            <div class="grid grid-cols-2 gap-4">
+                <div class="glass p-5 rounded-3xl">
+                    <p class="text-[10px] font-bold text-gray-500 uppercase mb-1">RAM Usage</p>
+                    <p class="text-xl font-black italic text-blue-400" id="ram-disp">124.5 MB</p>
+                    <div class="w-full bg-white/5 h-1 rounded-full mt-3 overflow-hidden">
+                        <div id="ram-bar" class="bg-blue-600 h-full transition-all duration-1000" style="width: 25%"></div>
                     </div>
                 </div>
-                <div class="glass p-6 rounded-3xl">
-                    <h3 class="text-xs font-bold text-gray-500 uppercase mb-4">Deployment Health</h3>
-                    <div class="flex items-center gap-4">
-                        <div class="flex-1 h-2 bg-gray-800 rounded-full overflow-hidden">
-                            <div class="w-[85%] h-full bg-blue-500 shadow-[0_0_10px_#3b82f6]"></div>
-                        </div>
-                        <span class="text-xs font-bold">85%</span>
+                <div class="glass p-5 rounded-3xl">
+                    <p class="text-[10px] font-bold text-gray-500 uppercase mb-1">CPU Load</p>
+                    <p class="text-xl font-black italic text-purple-400" id="cpu-disp">3.2%</p>
+                    <div class="w-full bg-white/5 h-1 rounded-full mt-3 overflow-hidden">
+                        <div id="cpu-bar" class="bg-purple-600 h-full transition-all duration-1000" style="width: 10%"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- FILE MANAGER AREA -->
-            <div class="flex-1 glass rounded-3xl overflow-hidden flex flex-col min-h-[400px]">
-                <div class="p-4 border-b border-white/5 flex justify-between items-center bg-white/5">
-                    <span class="text-xs font-bold uppercase tracking-widest text-gray-400">File Manager</span>
-                    <label class="bg-blue-600/10 text-blue-500 text-[10px] px-3 py-1 rounded-lg border border-blue-500/20 cursor-pointer hover:bg-blue-600 hover:text-white transition">
-                        UPLOAD FILE <input type="file" class="hidden" id="fileUpload">
+            <div class="flex-1 glass rounded-[2.5rem] flex flex-col overflow-hidden border-white/10">
+                <div class="px-6 py-4 border-b border-white/5 flex justify-between items-center bg-white/5">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Code Editor</span>
+                    <label class="cursor-pointer text-[10px] font-bold text-blue-500 hover:text-blue-400">
+                        <i class="fas fa-upload mr-1"></i> UPLOAD
+                        <input type="file" id="fileUpload" class="hidden">
                     </label>
                 </div>
-                <div class="flex flex-1 overflow-hidden">
-                    <div class="w-48 border-r border-white/5 p-2 overflow-y-auto" id="fileList">
-                        <div class="file-item p-3 rounded-xl text-xs flex items-center gap-3 text-blue-400 bg-blue-400/5 border border-blue-400/20">
-                            <i class="fas fa-file-code"></i> index.js
-                        </div>
+                <textarea id="editor" class="flex-1 p-6 bg-transparent outline-none resize-none text-gray-300" spellcheck="false">console.log("HostNet Pro Initialized...");</textarea>
+            </div>
+        </div>
+
+        <!-- TERMINAL VIEW -->
+        <div id="view-Terminal" class="view-panel p-4 md:p-8">
+            <div class="h-full glass bg-black/60 rounded-[2.5rem] p-6 flex flex-col border-blue-500/20">
+                <div class="flex-1 font-mono text-xs overflow-y-auto space-y-2 text-gray-400" id="termOut">
+                    <p class="text-blue-500 font-bold underline mb-4">TERMINAL v5.0.1_STABLE</p>
+                </div>
+                <div class="mt-4 flex gap-3 border-t border-white/5 pt-4">
+                    <span class="text-blue-500 font-bold">$</span>
+                    <input type="text" id="termInput" placeholder="Enter shell command..." class="flex-1 bg-transparent text-xs outline-none text-white">
+                </div>
+            </div>
+        </div>
+
+        <!-- SECURITY VIEW -->
+        <div id="view-Security" class="view-panel p-6 flex flex-col justify-center items-center">
+            <div class="w-full max-w-sm glass p-8 rounded-[3rem] text-center border-green-500/10">
+                <div class="w-20 h-20 bg-green-500/10 rounded-3xl mx-auto flex items-center justify-center text-green-500 text-3xl mb-6"><i class="fas fa-shield-check"></i></div>
+                <h2 class="text-xl font-bold mb-2">Shield Protection</h2>
+                <p class="text-xs text-gray-500 mb-8 leading-relaxed">Auto-DDoS mitigation and SSL encryption are active for this instance.</p>
+                <button onclick="switchView('Dashboard')" class="w-full py-4 bg-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition">Back to Console</button>
+            </div>
+        </div>
+
+        <!-- SETTINGS VIEW -->
+        <div id="view-Settings" class="view-panel p-6">
+            <div class="h-full glass rounded-[3rem] p-8 flex flex-col">
+                <h2 class="text-2xl font-black italic uppercase mb-8">Settings</h2>
+                <div class="space-y-6 flex-1">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Vercel Auth Token</label>
+                        <input type="password" id="apiToken" placeholder="Paste Private Key" class="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-sm outline-none focus:border-blue-500">
                     </div>
-                    <div class="flex-1 flex flex-col bg-black/20">
-                        <textarea id="editor" class="flex-1 p-6 bg-transparent outline-none resize-none text-sm text-gray-400" spellcheck="false">console.log("HostNet Bot Ready!");</textarea>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Runtime Version</label>
+                        <select class="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-sm outline-none appearance-none">
+                            <option>Node.js 20 (LTS)</option>
+                            <option>Node.js 18</option>
+                        </select>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- TERMINAL PANEL -->
-        <div id="panel-Terminal" class="hidden absolute inset-0 flex flex-col p-4 pb-24">
-            <div class="flex-1 glass bg-black/80 rounded-3xl p-6 font-mono text-xs overflow-y-auto space-y-2" id="termOut">
-                <p class="text-blue-500 font-bold">Welcome to HostNet Terminal v5.0</p>
-                <p class="text-gray-500 italic">Type 'help' for commands...</p>
-            </div>
-            <div class="mt-4 flex gap-3">
-                <input type="text" id="termInput" placeholder="Enter command..." class="flex-1 glass bg-white/5 rounded-xl px-4 py-3 text-xs outline-none focus:border-blue-500">
-                <button class="bg-white/5 px-6 rounded-xl border border-white/10 text-xs">RUN</button>
-            </div>
-        </div>
-
-        <!-- SECURITY PANEL -->
-        <div id="panel-Security" class="hidden absolute inset-0 flex flex-col p-8 pb-24 space-y-6">
-            <h2 class="text-2xl font-bold">Security Center</h2>
-            <div class="glass p-6 rounded-3xl flex items-center justify-between">
-                <div>
-                    <h4 class="font-bold">DDoS Protection</h4>
-                    <p class="text-xs text-gray-500">Auto-mitigation is currently active.</p>
-                </div>
-                <div class="w-12 h-6 bg-blue-600 rounded-full relative"><div class="w-4 h-4 bg-white rounded-full absolute right-1 top-1"></div></div>
-            </div>
-            <div class="glass p-6 rounded-3xl flex items-center justify-between">
-                <div>
-                    <h4 class="font-bold">SSL Certificate</h4>
-                    <p class="text-xs text-gray-500">Automatic Let's Encrypt SSL.</p>
-                </div>
-                <i class="fas fa-check-circle text-green-500 text-xl"></i>
-            </div>
-        </div>
-
-        <!-- SETTINGS PANEL -->
-        <div id="panel-Settings" class="hidden absolute inset-0 flex flex-col p-8 pb-24 space-y-6">
-            <h2 class="text-2xl font-bold">Project Settings</h2>
-            <div class="space-y-4">
-                <div>
-                    <label class="text-[10px] font-bold text-gray-500 uppercase mb-2 block">Vercel API Token</label>
-                    <input type="password" id="apiToken" placeholder="Paste Token..." class="w-full glass bg-white/5 border border-white/10 rounded-2xl p-4 text-sm outline-none focus:border-blue-500">
-                </div>
-                <div>
-                    <label class="text-[10px] font-bold text-gray-500 uppercase mb-2 block">Node Version</label>
-                    <select class="w-full glass bg-[#151921] border border-white/10 rounded-2xl p-4 text-sm outline-none">
-                        <option>Node.js 18.x</option>
-                        <option selected>Node.js 20.x</option>
-                    </select>
-                </div>
+                <button onclick="switchView('Dashboard')" class="w-full py-4 bg-blue-600 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-blue-600/20">Save and Close</button>
             </div>
         </div>
 
     </main>
 
-    <!-- BOTTOM NAVIGATION BAR -->
-    <nav class="fixed bottom-0 left-0 w-full h-20 glass border-t border-white/5 flex justify-around items-center px-4 z-[100] bg-[#0b0e14]/90 backdrop-blur-xl">
-        <button onclick="switchTab('Dashboard')" class="nav-btn active flex flex-col items-center gap-1 px-4 py-2 transition">
-            <i class="fas fa-columns text-lg"></i><span class="text-[9px] font-bold uppercase tracking-tighter">Dashboard</span>
-        </button>
-        <button onclick="switchTab('Terminal')" class="nav-btn flex flex-col items-center gap-1 px-4 py-2 transition">
-            <i class="fas fa-terminal text-lg"></i><span class="text-[9px] font-bold uppercase tracking-tighter">Terminal</span>
-        </button>
-        <div onclick="initiateDeploy()" class="w-14 h-14 bg-blue-600 rounded-2xl -mt-10 flex items-center justify-center shadow-xl shadow-blue-600/40 border-4 border-[#0b0e14] active:scale-90 transition cursor-pointer">
-            <i class="fas fa-rocket text-white text-xl"></i>
-        </div>
-        <button onclick="switchTab('Security')" class="nav-btn flex flex-col items-center gap-1 px-4 py-2 transition">
-            <i class="fas fa-shield-halved text-lg"></i><span class="text-[9px] font-bold uppercase tracking-tighter">Security</span>
-        </button>
-        <button onclick="switchTab('Settings')" class="nav-btn flex flex-col items-center gap-1 px-4 py-2 transition">
-            <i class="fas fa-cog text-lg"></i><span class="text-[9px] font-bold uppercase tracking-tighter">Settings</span>
-        </button>
-    </nav>
-
     <!-- DEPLOYMENT OVERLAY -->
-    <div id="deployOverlay" class="hidden fixed inset-0 z-[200] bg-black/90 flex items-center justify-center p-6 backdrop-blur-md">
-        <div class="w-full max-w-sm glass p-8 rounded-[2.5rem] text-center">
-            <div id="deployIcon" class="w-20 h-20 bg-blue-600/10 text-blue-500 rounded-3xl mx-auto flex items-center justify-center text-3xl mb-6 border border-blue-500/20">
-                <i class="fas fa-cloud-arrow-up animate-bounce"></i>
+    <div id="deployOverlay" class="hidden fixed inset-0 z-[100] bg-black/95 flex items-center justify-center backdrop-blur-xl">
+        <div class="text-center w-full max-w-xs">
+            <div id="deployIcon" class="text-blue-500 text-5xl mb-6 animate-pulse"><i class="fas fa-rocket"></i></div>
+            <h3 class="font-bold text-lg mb-1">Pushing Deployment</h3>
+            <p id="deployStatus" class="text-[10px] text-gray-500 uppercase tracking-widest mb-8">Building Containers...</p>
+            <div class="w-full h-1 bg-white/10 rounded-full overflow-hidden mb-8">
+                <div id="deployBar" class="h-full bg-blue-500 shadow-[0_0_15px_#3b82f6]" style="width: 0%"></div>
             </div>
-            <h3 class="text-xl font-bold mb-2">Deploying Build</h3>
-            <p id="deployStatus" class="text-xs text-gray-500 mb-6 font-mono">Preparing environment...</p>
-            <div class="w-full h-1.5 bg-gray-800 rounded-full overflow-hidden mb-8">
-                <div id="deployProgress" class="h-full bg-blue-600 shadow-[0_0_15px_#3b82f6] transition-all duration-300" style="width: 0%"></div>
-            </div>
-            <button onclick="closeDeploy()" class="text-gray-500 text-[10px] font-bold uppercase tracking-widest hover:text-white">Cancel</button>
+            <button onclick="location.reload()" class="text-[10px] font-bold text-gray-600 hover:text-white uppercase tracking-widest">Abort Process</button>
         </div>
     </div>
 
+    <!-- NAVIGATION BAR -->
+    <nav class="h-20 bg-black/80 border-t border-white/5 flex justify-around items-center px-4 shrink-0 z-50">
+        <button onclick="switchView('Dashboard')" class="nav-btn active flex flex-col items-center gap-1 p-2">
+            <i class="fas fa-grid-2 text-xl"></i>
+            <span class="text-[8px] font-black uppercase tracking-tighter">Dash</span>
+        </button>
+        <button onclick="switchView('Terminal')" class="nav-btn flex flex-col items-center gap-1 p-2">
+            <i class="fas fa-terminal text-xl"></i>
+            <span class="text-[8px] font-black uppercase tracking-tighter">Term</span>
+        </button>
+        
+        <div onclick="startDeploy()" class="w-14 h-14 bg-blue-600 rounded-[1.2rem] -mt-10 flex items-center justify-center shadow-2xl shadow-blue-600/40 border-4 border-[#030406] active:scale-90 transition-all cursor-pointer">
+            <i class="fas fa-paper-plane text-white text-lg"></i>
+        </div>
+        
+        <button onclick="switchView('Security')" class="nav-btn flex flex-col items-center gap-1 p-2">
+            <i class="fas fa-shield text-xl"></i>
+            <span class="text-[8px] font-black uppercase tracking-tighter">Safe</span>
+        </button>
+        <button onclick="switchView('Settings')" class="nav-btn flex flex-col items-center gap-1 p-2">
+            <i class="fas fa-sliders text-xl"></i>
+            <span class="text-[8px] font-black uppercase tracking-tighter">Set</span>
+        </button>
+    </nav>
+
     <script>
-        // TAB SWITCH LOGIC
-        function switchTab(id) {
-            document.querySelectorAll('main > div').forEach(p => p.classList.add('hidden'));
-            document.getElementById('panel-' + id).classList.remove('hidden');
-            document.getElementById('panel-' + id).classList.add('panel-active');
+        // PANEL SWITCHER (PREVENTS OVERLAPPING)
+        function switchView(viewId) {
+            document.querySelectorAll('.view-panel').forEach(v => v.classList.remove('active'));
+            document.getElementById('view-' + viewId).classList.add('active');
             
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            event.currentTarget.classList.add('active');
+            if(event && event.currentTarget.classList.contains('nav-btn')) {
+                event.currentTarget.classList.add('active');
+            }
         }
 
-        // SMOOTH METRICS SIMULATION
-        function updateMetrics() {
-            const ram = (Math.random() * (160 - 130) + 130).toFixed(1);
-            const cpu = (Math.random() * (4 - 1) + 1).toFixed(1);
-            document.getElementById('ram-disp').innerText = ram + "MB";
-            document.getElementById('cpu-disp').innerText = cpu + "%";
-        }
-        setInterval(updateMetrics, 3000);
+        // SMOOTH STATS
+        setInterval(() => {
+            const r = (Math.random() * 20 + 120).toFixed(1);
+            const c = (Math.random() * 5 + 2).toFixed(1);
+            document.getElementById('ram-disp').innerText = r + " MB";
+            document.getElementById('cpu-disp').innerText = c + "%";
+            document.getElementById('ram-bar').style.width = (r/10) + "%";
+            document.getElementById('cpu-bar').style.width = (c*2) + "%";
+        }, 3000);
 
-        // FILE UPLOAD LOGIC
+        // DEPLOYMENT LOGIC
+        function startDeploy() {
+            const token = document.getElementById('apiToken').value;
+            if(!token) {
+                alert("Enter Vercel Token in Settings first!");
+                switchView('Settings');
+                return;
+            }
+
+            const overlay = document.getElementById('deployOverlay');
+            overlay.classList.remove('hidden');
+            
+            let p = 0;
+            const itv = setInterval(() => {
+                p += Math.random() * 8;
+                if(p > 100) p = 100;
+                document.getElementById('deployBar').style.width = p + "%";
+                
+                if(p > 20) document.getElementById('deployStatus').innerText = "Compiling Assets...";
+                if(p > 60) document.getElementById('deployStatus').innerText = "Routing to Edge...";
+                
+                if(p >= 100) {
+                    clearInterval(itv);
+                    document.getElementById('deployStatus').innerText = "DEPLOYMENT STABLE";
+                    document.getElementById('deployStatus').classList.add('text-green-500');
+                    document.getElementById('deployIcon').innerHTML = '<i class="fas fa-check-double"></i>';
+                    document.getElementById('deployIcon').classList.add('text-green-500');
+                    
+                    setTimeout(() => overlay.classList.add('hidden'), 2000);
+                }
+            }, 400);
+        }
+
+        // FILE HANDLER
         document.getElementById('fileUpload').onchange = function(e) {
             const file = e.target.files[0];
-            if (file) {
-                const list = document.getElementById('fileList');
-                const div = document.createElement('div');
-                div.className = "file-item p-3 rounded-xl text-xs flex items-center gap-3 text-gray-400 mt-1 cursor-pointer";
-                div.innerHTML = `<i class="fas fa-file"></i> ${file.name}`;
-                list.appendChild(div);
-                
+            if(file) {
                 const reader = new FileReader();
-                reader.onload = (ev) => { 
+                reader.onload = (ev) => {
                     document.getElementById('editor').value = ev.target.result;
-                    switchTab('Dashboard');
+                    alert("File loaded: " + file.name);
                 };
                 reader.readAsText(file);
             }
         };
 
-        // DEPLOYMENT SEQUENCE
-        function initiateDeploy() {
-            const token = document.getElementById('apiToken').value;
-            if (!token) {
-                alert("Please add Vercel Token in Settings first!");
-                switchTab('Settings');
-                return;
-            }
-
-            const overlay = document.getElementById('deployOverlay');
-            const progress = document.getElementById('deployProgress');
-            const status = document.getElementById('deployStatus');
-            
-            overlay.classList.remove('hidden');
-            let p = 0;
-            const itv = setInterval(() => {
-                p += Math.random() * 5;
-                if(p > 100) p = 100;
-                progress.style.width = p + "%";
-                
-                if(p > 10) status.innerText = "Indexing files...";
-                if(p > 40) status.innerText = "Uploading to Edge Node...";
-                if(p > 70) status.innerText = "Optimizing Engine...";
-                
-                if(p >= 100) {
-                    clearInterval(itv);
-                    status.innerText = "LIVE AT: bot-deployment-x2.vercel.app";
-                    status.classList.add('text-green-500');
-                    document.getElementById('deployIcon').innerHTML = '<i class="fas fa-check"></i>';
-                    document.getElementById('deployIcon').classList.add('text-green-500', 'bg-green-500/10', 'border-green-500/20');
-                }
-            }, 200);
-        }
-
-        function closeDeploy() {
-            document.getElementById('deployOverlay').classList.add('hidden');
-            location.reload(); // Simple reset
-        }
-
-        // TERMINAL COMMANDS
+        // TERMINAL SIM
         document.getElementById('termInput').onkeydown = function(e) {
             if(e.key === 'Enter') {
                 const cmd = this.value;
                 const out = document.getElementById('termOut');
-                out.innerHTML += `<p class="text-gray-300 font-bold">$ ${cmd}</p>`;
-                if(cmd === 'help') out.innerHTML += `<p class="text-yellow-500">Available: status, reboot, logs, clear</p>`;
-                else if(cmd === 'status') out.innerHTML += `<p class="text-green-500 font-bold">Node-01: ACTIVE | Uptime: 100%</p>`;
-                else out.innerHTML += `<p class="text-red-400">Command not found.</p>`;
+                out.innerHTML += `<p class="text-white mt-2">$ ${cmd}</p>`;
+                if(cmd === 'help') out.innerHTML += `<p class="text-yellow-500">Available: status, clear, reboot</p>`;
+                else if(cmd === 'status') out.innerHTML += `<p class="text-green-500">HostNet Engine v5: Healthy</p>`;
+                else if(cmd === 'clear') out.innerHTML = '';
+                else out.innerHTML += `<p class="text-red-400">Command not found: ${cmd}</p>`;
                 this.value = '';
                 out.scrollTop = out.scrollHeight;
             }
