@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MR HASHUU | Live Share Playground</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #050505; color: white; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        
+        header { 
+            padding: 10px 20px; 
+            background: #111; 
+            border-bottom: 1px solid #333; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+
+        .logo { color: #00ffcc; font-weight: bold; letter-spacing: 1px; }
+
+        .btn-share {
+            background: #00ffcc;
+            color: black;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-share:hover { background: #00cca3; transform: scale(1.05); }
+
+        .container { display: flex; flex: 1; height: calc(100vh - 60px); }
+        .editors { width: 40%; display: flex; flex-direction: column; border-right: 2px solid #222; background: #0f0f0f; }
+        .editor-box { flex: 1; display: flex; flex-direction: column; border-bottom: 1px solid #222; }
+        .label { padding: 5px 15px; background: #1a1a1a; font-size: 10px; color: #888; text-transform: uppercase; }
+        
+        textarea { 
+            flex: 1; width: 100%; padding: 10px; background: transparent; border: none; 
+            color: #00ffcc; font-family: monospace; font-size: 13px; resize: none; outline: none; 
+        }
+
+        .preview { width: 60%; background: white; }
+        iframe { width: 100%; height: 100%; border: none; }
+
+        /* Popup style */
+        #share-popup {
+            display: none;
+            position: fixed;
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: #222; padding: 20px; border: 1px solid #00ffcc; border-radius: 10px;
+            z-index: 100; width: 300px; text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">MR HASHUU <span style="color:white">CLOUD</span></div>
+    <button class="btn-share" onclick="generateShareLink()">GET SHARE LINK</button>
+</header>
+
+<div class="container">
+    <div class="editors">
+        <div class="editor-box">
+            <div class="label">HTML</div>
+            <textarea id="html-code" oninput="runCode()"><h1>Hello!</h1></textarea>
+        </div>
+        <div class="editor-box">
+            <div class="label">CSS</div>
+            <textarea id="css-code" oninput="runCode()">h1 { color: cyan; text-align: center; margin-top: 50px; font-family: sans-serif; }</textarea>
+        </div>
+        <div class="editor-box">
+            <div class="label">JS</div>
+            <textarea id="js-code" oninput="runCode()">console.log('Running...');</textarea>
+        </div>
+    </div>
+    <div class="preview">
+        <iframe id="output"></iframe>
+    </div>
+</div>
+
+<div id="share-popup">
+    <p style="margin-bottom:10px;">Copy your link:</p>
+    <input type="text" id="link-input" style="width:100%; padding:5px; margin-bottom:10px;">
+    <button onclick="document.getElementById('share-popup').style.display='none'" style="padding:5px 10px;">Close</button>
+</div>
+
+<script>
+    function runCode() {
+        const html = document.getElementById("html-code").value;
+        const css = "<style>" + document.getElementById("css-code").value + "</style>";
+        const js = "<script>" + document.getElementById("js-code").value + "<\/script>";
+        const output = document.getElementById("output").contentWindow.document;
+        output.open();
+        output.write(html + css + js);
+        output.close();
+    }
+
+    function generateShareLink() {
+        const h = document.getElementById("html-code").value;
+        const c = document.getElementById("css-code").value;
+        const j = document.getElementById("js-code").value;
+        
+        // Encode code to Base64
+        const data = JSON.stringify({html: h, css: c, js: j});
+        const encoded = btoa(unescape(encodeURIComponent(data)));
+        const url = window.location.origin + window.location.pathname + "?code=" + encoded;
+        
+        document.getElementById("link-input").value = url;
+        document.getElementById("share-popup").style.display = "block";
+        document.getElementById("link-input").select();
+    }
+
+    window.onload = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const codeParam = urlParams.get('code');
+        
+        if (codeParam) {
+            try {
+                const decoded = JSON.parse(decodeURIComponent(escape(atob(codeParam))));
+                document.getElementById("html-code").value = decoded.html;
+                document.getElementById("css-code").value = decoded.css;
+                document.getElementById("js-code").value = decoded.js;
+            } catch(e) { console.error("Error decoding link"); }
+        }
+        runCode();
+    };
+</script>
+
+</body>
+</html>
